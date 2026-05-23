@@ -1,0 +1,17 @@
+# Example source-of-truth manifest for driftwatch
+name: auth-service
+version: "1.2.3"
+image: registry.example.com/auth-service:1.2.3
+replicas: 3
+environment:
+  LOG_LEVEL: info
+  DB_HOST: postgres.internal
+  DB_PORT: "5432"
+  METRICS_ENABLED: "true"
+ports:
+  - 8080
+  - 9090
+labels:
+  team: platform
+  env: production
+  managed-by: driftwatch
