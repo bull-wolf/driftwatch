@@ -1,0 +1,2 @@
+{"timestamp":"2024-01-15T10:00:00Z","service":"auth-service","drifts":[{"field":"image","deployed":"nginx:1.19","expected":"nginx:1.21"}],"has_drift":true}
+{"timestamp":"2024-01-15T11:00:00Z","service":"auth-service","drifts":[],"has_drift":false}
