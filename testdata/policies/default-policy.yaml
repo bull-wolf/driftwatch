@@ -1,0 +1,20 @@
+rules:
+  - name: no-latest-image
+    field: image
+    severity: error
+    deny_list:
+      - "nginx:latest"
+      - "alpine:latest"
+
+  - name: no-debug-env
+    field: env
+    severity: warn
+    deny_list:
+      - "debug"
+      - "DEBUG"
+
+  - name: replicas-not-zero
+    field: replicas
+    severity: error
+    deny_list:
+      - "0"
