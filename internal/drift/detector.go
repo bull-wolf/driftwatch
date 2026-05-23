@@ -6,54 +6,64 @@ import (
 	"github.com/driftwatch/internal/manifest"
 )
 
-// DriftResult holds the outcome of comparing a deployed service against its manifest.
+// DriftResult describes a single field that has drifted from the manifest.
 type DriftResult struct {
-	ServiceName string
-	HasDrift    bool
-	Diffs       []string
+	Service  string
+	Field    string
+	Expected string
+	Actual   string
 }
 
-// DeployedState represents the observed live state of a service.
-type DeployedState struct {
-	Name        string
-	Image       string
-	Replicas    int
-	Environment string
+// LiveState represents the observed runtime state of a deployed service.
+type LiveState struct {
+	Name     string
+	Image    string
+	Replicas int
+	Env      map[string]string
 }
 
-// Detect compares a deployed service state against the source-of-truth manifest.
-// It returns a DriftResult describing any discrepancies found.
-func Detect(deployed DeployedState, m manifest.Manifest) DriftResult {
-	result := DriftResult{
-		ServiceName: m.Name,
-		HasDrift:    false,
-		Diffs:       []string{},
+// Detect compares a manifest against the live state and returns any drifts found.
+func Detect(m manifest.Manifest, live LiveState) []DriftResult {
+	var results []DriftResult
+
+	if m.Image != live.Image {
+		results = append(results, DriftResult{
+			Service:  m.Name,
+			Field:    "image",
+			Expected: m.Image,
+			Actual:   live.Image,
+		})
 	}
 
-	if deployed.Image != m.Image {
-		result.Diffs = append(result.Diffs, fmt.Sprintf(
-			"image mismatch: deployed=%q manifest=%q",
-			deployed.Image, m.Image,
-		))
+	if m.Replicas != live.Replicas {
+		results = append(results, DriftResult{
+			Service:  m.Name,
+			Field:    "replicas",
+			Expected: fmt.Sprintf("%d", m.Replicas),
+			Actual:   fmt.Sprintf("%d", live.Replicas),
+		})
 	}
 
-	if deployed.Replicas != m.Replicas {
-		result.Diffs = append(result.Diffs, fmt.Sprintf(
-			"replicas mismatch: deployed=%d manifest=%d",
-			deployed.Replicas, m.Replicas,
-		))
+	for key, expectedVal := range m.Env {
+		actualVal, ok := live.Env[key]
+		if !ok {
+			results = append(results, DriftResult{
+				Service:  m.Name,
+				Field:    fmt.Sprintf("env.%s", key),
+				Expected: expectedVal,
+				Actual:   "<missing>",
+			})
+			continue
+		}
+		if expectedVal != actualVal {
+			results = append(results, DriftResult{
+				Service:  m.Name,
+				Field:    fmt.Sprintf("env.%s", key),
+				Expected: expectedVal,
+				Actual:   actualVal,
+			})
+		}
 	}
 
-	if deployed.Environment != m.Environment {
-		result.Diffs = append(result.Diffs, fmt.Sprintf(
-			"environment mismatch: deployed=%q manifest=%q",
-			deployed.Environment, m.Environment,
-		))
-	}
-
-	if len(result.Diffs) > 0 {
-		result.HasDrift = true
-	}
-
-	return result
+	return results
 }
