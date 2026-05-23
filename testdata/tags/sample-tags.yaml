@@ -1,0 +1,6 @@
+# Sample tag definitions for integration tests and documentation examples.
+# Tags are key=value pairs attached to drift results for context.
+env: prod
+team: platform
+region: us-east-1
+owner: sre
