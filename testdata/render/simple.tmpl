@@ -1,0 +1,7 @@
+# Drift Report — {{ .Service }}
+Generated: {{ .Timestamp.Format "2006-01-02T15:04:05Z" }}
+Status: {{ if .HasDrift }}DRIFTED{{ else }}CLEAN{{ end }}
+{{ if .HasDrift }}
+Drifts detected:
+{{ range .Drifts }}  - field={{ .Field }} expected={{ .Expected }} actual={{ .Actual }}
+{{ end }}{{ end }}
