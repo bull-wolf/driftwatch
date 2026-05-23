@@ -1,0 +1,2 @@
+{"timestamp":"2024-01-15T10:00:00Z","service_name":"auth-service","kind":"drift_detected","details":"image: expected nginx:1.25, got nginx:1.24"}
+{"timestamp":"2024-01-15T11:00:00Z","service_name":"auth-service","kind":"clean","details":""}
